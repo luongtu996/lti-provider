@@ -40,7 +40,7 @@ class Lti13Service
         $this->cookie = $cookie;
         $this->serviceConnector = $serviceConnector;
 
-        $this->launchUrl = env('APP_URL') . "/lti/launches";
+        $this->launchUrl = env('APP_URL') . "";
     }
 
     /**
@@ -49,6 +49,14 @@ class Lti13Service
     public function getCachedLaunch($launch_id): ?LtiMessageLaunch
     {
         return LtiMessageLaunch::fromCache($launch_id, $this->db, $this->cache, $this->serviceConnector);
+    }
+
+    /**
+     * @throws LtiException
+     */
+    public function fromRequest($launch_id): ?LtiMessageLaunch
+    {
+        return LtiMessageLaunch::fromRequest($launch_id, $this->db, $this->cache, $this->serviceConnector);
     }
 
     /**

@@ -6,7 +6,10 @@ namespace App\Http\Controllers;
 use App\Lti\Lti13Cache;
 use App\Lti\Lti13Cookie;
 use App\Lti\Lti13Database;
+use App\Services\Lti\LtiMessageLaunch;
 use App\Services\Lti13Service;
+use Carbon\Carbon;
+use DateTimeInterface;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,7 +18,6 @@ use Packback\Lti1p3\LtiDeepLinkResource;
 use Packback\Lti1p3\LtiGrade;
 use Packback\Lti1p3\LtiLineitem;
 use Packback\Lti1p3\LtiOidcLogin;
-use DateTimeInterface;
 
 class LTIController extends Controller
 {
@@ -46,7 +48,6 @@ class LTIController extends Controller
         try {
             $launch = $this->lti13Service->validateLaunch($request);
         } catch (Exception $e) {
-            dd($e);
             return response()->json(array('success' => false, 'message' => 'Authentication failed'), 400);
         }
         Log::info($launch->getLaunchData());
@@ -112,22 +113,14 @@ class LTIController extends Controller
             $score = LTIGrade::new()
                 ->setScoreGiven($point)
                 ->setScoreMaximum(100) //This one will be compared with the maximum set on LMS and respectively calculated
-                ->setTimestamp(date(DateTimeInterface::ISO8601))
+                ->setTimestamp(Carbon::now()->toIso8601String())
                 ->setActivityProgress('Completed')
                 ->setGradingProgress('FullyGraded')
                 ->setUserId($launch_data['sub']);
 
-            $resourceId = $launch_data['https://purl.imsglobal.org/spec/lti/claim/resource_link']['id'];
-
-            $scoreLineitem = LTILineitem::new()
-                ->setTag('score')
-                ->setScoreMaximum(100)
-                ->setLabel('Score')
-                ->setResourceId($resourceId);
-
-            $grades->putGrade($score, $scoreLineitem);
+            $grades->putGrade($score);
             $res = $correctAnswer == $ans ? 'correct' : 'incorrect';
-            return response()->redirectTo('/quiz-completed?res='.$res.'&launch_id='.$launch_id);
+            return response()->redirectTo(env('APP_URL').'/quiz-completed?res='.$res.'&launch_id='.$launch_id);
         } catch (Exception $e) {
             return response()->json(array('success' => false, 'message' => 'Can not return score!'), 400);
         }
@@ -145,15 +138,7 @@ class LTIController extends Controller
             $nrps = $launch->getNrps();
             $members = $nrps->getMembers();
             $ags = $launch->getAgs();
-            $resourceId = $launch_data['https://purl.imsglobal.org/spec/lti/claim/resource_link']['id'];
-
-            $scoreLineitem = LTILineitem::new()
-                ->setTag('score')
-                ->setScoreMaximum(100)
-                ->setLabel('Score')
-                ->setResourceId($resourceId);
-
-            $scores = $ags->getGrades($scoreLineitem);
+            $scores = $ags->getGrades();
 
             usort($scores, function($a, $b) { return $b['resultScore'] - $a['resultScore']; });
             foreach ($scores as $score) {

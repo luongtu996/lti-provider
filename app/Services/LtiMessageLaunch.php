@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Lti;
+namespace App\Services;
 
 use App\Exceptions\NotFoundException;
 use App\Models\Lti13Registration;

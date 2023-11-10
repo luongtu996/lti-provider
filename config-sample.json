@@ -1,0 +1,51 @@
+{
+    "title": "Perusall",
+    "description": "The Perusall social learning platform.",
+    "oidc_initiation_url": "https://app.perusall.com/ltia/oidc",
+    "target_link_uri": "https://app.perusall.com/ltia/launch",
+    "scopes": ["https://purl.imsglobal.org/spec/lti-ags/scope/lineitem", "https://purl.imsglobal.org/spec/lti-ags/scope/score", "https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly", "https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly"],
+    "extensions": [{
+        "domain": "app.perusall.com",
+        "tool_id": "perusall",
+        "platform": "canvas.instructure.com",
+        "privacy_level": "public",
+        "settings": {
+            "text": "Launch Perusall",
+            "icon_url": "https://perusall.com/favicon.ico",
+            "selection_height": 800,
+            "selection_width": 1000,
+            "placements": [{
+                "text": "Perusall",
+                "enabled": true,
+                "icon_url": "https://perusall.com/favicon.ico",
+                "placement": "course_navigation",
+                "default": "disabled",
+                "windowTarget": "_blank",
+                "message_type": "LtiResourceLinkRequest",
+                "target_link_uri": "https://app.perusall.com/ltia/launch",
+                "canvas_icon_class": "icon-lti",
+                "custom_fields": {
+                    "start_date": "$Canvas.course.startAt",
+                    "end_date": "$Canvas.course.endAt",
+                    "student_id": "$Person.sourcedId"
+                }
+            }, {
+                "text": "Perusall",
+                "placement": "assignment_selection",
+                "url": "https://app.perusall.com/ltia/launch",
+                "message_type": "LtiDeepLinkingRequest"
+            }, {
+                "text": "Perusall",
+                "placement": "link_selection",
+                "url": "https://app.perusall.com/ltia/launch",
+                "message_type": "LtiDeepLinkingRequest"
+            }]
+        }
+    }],
+    "public_jwk_url": "https://app.perusall.com/ltia/jwks",
+    "custom_fields": {
+        "start_date": "$Canvas.course.startAt",
+        "end_date": "$Canvas.course.endAt",
+        "student_id": "$Person.sourcedId"
+    }
+}
