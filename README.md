@@ -43,11 +43,13 @@ sail artisan db:seed --class=LtiSeeder
 ![Screen Shot 2023-10-27 at 11 08 41](https://github.com/luongtu996/lti-provider/assets/26574116/89c706bc-0c3d-4f06-bef8-2172bba20b7d)
 <img width="1188" alt="Screen Shot 2023-10-27 at 11 11 18" src="https://github.com/luongtu996/lti-provider/assets/26574116/68ba63a8-925c-4230-a249-4d4cfed3cd97">
 
-## FIX lỗi không submit grade.
+## Fix lỗi không submit grade.
 
 là do lms không get được `{app}/keys`. 
 Sửa jwk method =  PublicJWK.
 Copy json từ  url `{app}/keys` paste vào
+
+![Screen Shot 2023-11-10 at 16 18 34](https://github.com/luongtu996/lti-provider/assets/26574116/02847bdb-417e-4483-a7b7-07258196e798)
 
 ## License
 
