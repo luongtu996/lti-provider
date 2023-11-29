@@ -26,8 +26,8 @@ class LtiSeeder extends Seeder
         ));
 
         $registration = Lti13Registration::create(array(
-            'issuer' => 'https://canvas.instructure.com',
-            'client_id' => '10000000000003',
+            'issuer' => 'https://canvas-dev.heyhi.sg',
+            'client_id' => '10000000000005',
             'platform_login_auth_endpoint' => 'https://canvas-dev.heyhi.sg/api/lti/authorize_redirect',
             'platform_auth_token_endpoint' => 'https://canvas-dev.heyhi.sg/login/oauth2/token',
             'platform_key_set_endpoint' => 'https://canvas-dev.heyhi.sg/api/lti/security/jwks',
@@ -36,7 +36,7 @@ class LtiSeeder extends Seeder
 
         Lti13Deployment::create(array(
             'lti_registration_id' => $registration->id,
-            'deployment_id' => '4:0b911e0001f2df2e5db2b1160a08fa14a2a24b28'
+            'deployment_id' => '6:387e3d3c9786bae26ec46c1ac345da97a6812a5a'
         ));
     }
 }

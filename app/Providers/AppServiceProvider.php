@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Lti\Lti13Cache;
 use App\Lti\Lti13Cookie;
 use App\Lti\Lti13Database;
+use Firebase\JWT\JWT;
 use GuzzleHttp\Client;
 use Illuminate\Support\ServiceProvider;
 use Packback\Lti1p3\Interfaces\ICache;
@@ -36,6 +37,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        JWT::$leeway = 5;
     }
 }

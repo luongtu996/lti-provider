@@ -31,7 +31,7 @@ class LTIController extends Controller
      */
     public function __construct(
         Lti13Service $lti13Service,
-        Lti13Cookie $cookie
+        Lti13Cookie  $cookie
     )
     {
         $this->lti13Service = $lti13Service;
@@ -40,11 +40,12 @@ class LTIController extends Controller
 
     public function login(Request $request)
     {
-       $url = $this->lti13Service->login($request);
+        $url = $this->lti13Service->login($request);
         return redirect($url);
     }
 
-    public function handleRedirectAfterLogin(Request $request) {
+    public function handleRedirectAfterLogin(Request $request)
+    {
         try {
             $launch = $this->lti13Service->validateLaunch($request);
         } catch (Exception $e) {
@@ -58,11 +59,13 @@ class LTIController extends Controller
         return response()->redirectTo($target_url . '?launch_id=' . $launch->getLaunchId());
     }
 
-    public function greeting(Request $request) {
+    public function greeting(Request $request)
+    {
         return "Hello world";
     }
 
-    public function selectQuizLevel() {
+    public function selectQuizLevel()
+    {
         $queries = request()->query->all();
         $launch_id = $queries['launch_id'];
         $level = $queries['level'];
@@ -81,7 +84,8 @@ class LTIController extends Controller
         $dl->outputResponseForm([$resource]);
     }
 
-    public function doQuiz() {
+    public function doQuiz()
+    {
         $launch_id = request()->query->get('launch_id');
         $launch = $this->lti13Service->getCachedLaunch($launch_id);
         try {
@@ -92,7 +96,8 @@ class LTIController extends Controller
         }
     }
 
-    public function handleQuizSubmitted() {
+    public function handleQuizSubmitted()
+    {
         $req = request()->only(['launch_id', 'ans']);
         $launch_id = $req['launch_id'];
         $ans = $req['ans'];
@@ -120,13 +125,14 @@ class LTIController extends Controller
 
             $grades->putGrade($score);
             $res = $correctAnswer == $ans ? 'correct' : 'incorrect';
-            return response()->redirectTo(env('APP_URL').'/quiz-completed?res='.$res.'&launch_id='.$launch_id);
+            return response()->redirectTo(env('APP_URL') . '/quiz-completed?res=' . $res . '&launch_id=' . $launch_id);
         } catch (Exception $e) {
             return response()->json(array('success' => false, 'message' => 'Can not return score!'), 400);
         }
     }
 
-    public function quizCompleted() {
+    public function quizCompleted()
+    {
         $res = request()->query->get('res');
         $launch_id = request()->query->get('launch_id');
         $launch = $this->lti13Service->getCachedLaunch($launch_id);
@@ -140,14 +146,14 @@ class LTIController extends Controller
             $ags = $launch->getAgs();
             $scores = $ags->getGrades();
 
-            usort($scores, function($a, $b) { return $b['resultScore'] - $a['resultScore']; });
+            usort($scores, function ($a, $b) {
+                return $b['resultScore'] - $a['resultScore'];
+            });
             foreach ($scores as $score) {
                 $userid = $score['userId'];
                 $user = null;
-                foreach($members as $mem)
-                {
-                    if ($mem['user_id'] == $userid)
-                    {
+                foreach ($members as $mem) {
+                    if ($mem['user_id'] == $userid) {
                         $user = $mem;
                         break;
                     }
@@ -164,7 +170,8 @@ class LTIController extends Controller
     /**
      * @throws Exception
      */
-    private function getCorrectAnswer($level) {
+    private function getCorrectAnswer($level)
+    {
         switch ($level) {
             case 'easy':
                 return 2;
@@ -177,7 +184,69 @@ class LTIController extends Controller
         }
     }
 
-    public function jwks() {
+    public function jwks()
+    {
         return new JsonResponse($this->lti13Service->getPublicJwks());
+    }
+
+    public function config(Request $request)
+    {
+        $configArray = [
+            "title" => "Assessment",
+            "description" => "Assessment Response Tool",
+            "oidc_initiation_url" => url("/login"),
+            "target_link_uri" => url("/"),
+            "scopes" => [
+                "https://purl.imsglobal.org/spec/lti-ags/scope/score",
+                "https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly",
+                "https://purl.imsglobal.org/spec/lti-nrps/scope/contextmembership.readonly",
+                "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem.readonly",
+                "https://purl.imsglobal.org/spec/lti-ags/scope/lineitem"
+            ],
+            "extensions" => [
+                [
+                    "domain" => $request->getHost(),
+                    "tool_id" => "assessment",
+                    "platform" => "canvas-dev.heyhi.sg",
+                    "settings" => [
+                        "privacy_level" => "public",
+                        "text" => "Launch Assessment",
+                        "placements" => [
+                            [
+                                "text" => "Assessment",
+                                "enabled" => true,
+                                "placement" => "assignment_selection",
+                                "message_type" => "LtiDeepLinkingRequest",
+                                "target_link_uri" => url("/"),
+                            ],
+                            [
+                                "text" => "Assessment",
+                                "enabled" => true,
+                                "placement" => "link_selection",
+                                "message_type" => "LtiDeepLinkingRequest",
+                                "target_link_uri" => url("/"),
+                            ]
+                        ]
+                    ]
+                ]
+            ],
+            "public_jwk" => [
+                "kty" => "RSA",
+                "alg" => "RS256",
+                "use" => "sig",
+                "e" => "AQAB",
+                "n" => "oiQQO8ilHqJS2ukVsPYMgVr2v0Xy1oH8zJwDfUDe46sKQVuMMIBIBEOFMI4gPvjbzrCCrIyacj3VUXUq21RW-hLYozfikIe_iVhFbrEmXM2qlqNg6kwMNjoMKm3pRHFjOWwdZy0mGwA48nl788_n9pO26whwwFgOI5I6flGHj-_b9up8pcnrXsLux_yu759-sGJufiItxX4TnI0vgGJF9fV7ZACnSTjIWGCg2Lq7VcA2JYoNbly0FOOIUHQrc87es1F2WzwfjkWNYXlPqSr7js8cRikNar3WAcqNfAiLP6tOSp2nknLhb2FOsdYAXvXM1zguMmByZV2x4PML9ItJ3w==",
+                "kid" => "b3db2805-4de5-49b0-bc9e-4ed89c1b21db"
+            ],
+
+            "custom_fields" => [
+                "canvas_integration_id" => '$Canvas.user.sisSourceId',
+                "user_username" => '$User.username',
+                "canvas_user_id" => '$Canvas.user.id',
+                "canvas_course_id" => '$Canvas.course.id'
+            ]
+        ];
+
+        return response()->json($configArray);
     }
 }

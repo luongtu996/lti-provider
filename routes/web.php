@@ -31,6 +31,8 @@ Route::name('lti.')->group(function () {
     Route::post('submit-quiz', [LTIController::class, 'handleQuizSubmitted']);
 
     Route::get('quiz-completed',  [LTIController::class, 'quizCompleted']);
+
+    Route::get('config',  [LTIController::class, 'config']);
 });
 
 
